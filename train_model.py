@@ -55,6 +55,7 @@ def main():
     joblib.dump({"model": model, "feature_order": FEATURE_ORDER}, MODEL_PATH)
     print(f"Trained on {len(X)} synthetic samples. Saved to {MODEL_PATH}")
 
+    
     # Sanity check: a clearly bad reading should score much lower than a good one
     good = np.array([[2.0, 30, 15]])
     bad = np.array([[9.0, 90, 35]])
