@@ -1,4 +1,0 @@
-firebase-admin
-scikit-learn
-joblib
-numpy
