@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as DefectsRouteImport } from './routes/defects'
 import { Route as GanttRouteImport } from './routes/gantt'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalyticsRoute = AnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DefectsRoute = DefectsRouteImport.update({
@@ -31,30 +37,34 @@ const GanttRoute = GanttRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
   '/defects': typeof DefectsRoute
   '/gantt': typeof GanttRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
   '/defects': typeof DefectsRoute
   '/gantt': typeof GanttRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
   '/defects': typeof DefectsRoute
   '/gantt': typeof GanttRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/defects' | '/gantt'
+  fullPaths: '/' | '/analytics' | '/defects' | '/gantt'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/defects' | '/gantt'
-  id: '__root__' | '/' | '/defects' | '/gantt'
+  to: '/' | '/analytics' | '/defects' | '/gantt'
+  id: '__root__' | '/' | '/analytics' | '/defects' | '/gantt'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnalyticsRoute: typeof AnalyticsRoute
   DefectsRoute: typeof DefectsRoute
   GanttRoute: typeof GanttRoute
 }
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analytics': {
+      id: '/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AnalyticsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/defects': {
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnalyticsRoute: AnalyticsRoute,
   DefectsRoute: DefectsRoute,
   GanttRoute: GanttRoute,
 }
