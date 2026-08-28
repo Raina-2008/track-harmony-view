@@ -1,8 +1,0 @@
-# Never commit Firebase credentials
-serviceAccountKey.json
-
-# Python
-__pycache__/
-*.pyc
-.env
-venv/
