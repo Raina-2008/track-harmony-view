@@ -10,33 +10,91 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AnalyticsRouteImport } from './routes/analytics'
+import { Route as CorridorRouteImport } from './routes/corridor'
+import { Route as DefectsRouteImport } from './routes/defects'
+import { Route as GanttRouteImport } from './routes/gantt'
+import { Route as SettingsRouteImport } from './routes/settings'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnalyticsRoute = AnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CorridorRoute = CorridorRouteImport.update({
+  id: '/corridor',
+  path: '/corridor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DefectsRoute = DefectsRouteImport.update({
+  id: '/defects',
+  path: '/defects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GanttRoute = GanttRouteImport.update({
+  id: '/gantt',
+  path: '/gantt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
+  '/corridor': typeof CorridorRoute
+  '/defects': typeof DefectsRoute
+  '/gantt': typeof GanttRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
+  '/corridor': typeof CorridorRoute
+  '/defects': typeof DefectsRoute
+  '/gantt': typeof GanttRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
+  '/corridor': typeof CorridorRoute
+  '/defects': typeof DefectsRoute
+  '/gantt': typeof GanttRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    '/' | '/analytics' | '/corridor' | '/defects' | '/gantt' | '/settings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/analytics' | '/corridor' | '/defects' | '/gantt' | '/settings'
+  id:
+    | '__root__'
+    | '/'
+    | '/analytics'
+    | '/corridor'
+    | '/defects'
+    | '/gantt'
+    | '/settings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnalyticsRoute: typeof AnalyticsRoute
+  CorridorRoute: typeof CorridorRoute
+  DefectsRoute: typeof DefectsRoute
+  GanttRoute: typeof GanttRoute
+  SettingsRoute: typeof SettingsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +106,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/analytics': {
+      id: '/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/corridor': {
+      id: '/corridor'
+      path: '/corridor'
+      fullPath: '/corridor'
+      preLoaderRoute: typeof CorridorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/defects': {
+      id: '/defects'
+      path: '/defects'
+      fullPath: '/defects'
+      preLoaderRoute: typeof DefectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gantt': {
+      id: '/gantt'
+      path: '/gantt'
+      fullPath: '/gantt'
+      preLoaderRoute: typeof GanttRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnalyticsRoute: AnalyticsRoute,
+  CorridorRoute: CorridorRoute,
+  DefectsRoute: DefectsRoute,
+  GanttRoute: GanttRoute,
+  SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
