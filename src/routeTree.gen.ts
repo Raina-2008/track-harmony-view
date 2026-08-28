@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
+import { Route as CorridorRouteImport } from './routes/corridor'
 import { Route as DefectsRouteImport } from './routes/defects'
 import { Route as GanttRouteImport } from './routes/gantt'
 
@@ -22,6 +23,11 @@ const IndexRoute = IndexRouteImport.update({
 const AnalyticsRoute = AnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CorridorRoute = CorridorRouteImport.update({
+  id: '/corridor',
+  path: '/corridor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DefectsRoute = DefectsRouteImport.update({
@@ -38,12 +44,14 @@ const GanttRoute = GanttRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
+  '/corridor': typeof CorridorRoute
   '/defects': typeof DefectsRoute
   '/gantt': typeof GanttRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
+  '/corridor': typeof CorridorRoute
   '/defects': typeof DefectsRoute
   '/gantt': typeof GanttRoute
 }
@@ -51,20 +59,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
+  '/corridor': typeof CorridorRoute
   '/defects': typeof DefectsRoute
   '/gantt': typeof GanttRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/analytics' | '/defects' | '/gantt'
+  fullPaths: '/' | '/analytics' | '/corridor' | '/defects' | '/gantt'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/analytics' | '/defects' | '/gantt'
-  id: '__root__' | '/' | '/analytics' | '/defects' | '/gantt'
+  to: '/' | '/analytics' | '/corridor' | '/defects' | '/gantt'
+  id: '__root__' | '/' | '/analytics' | '/corridor' | '/defects' | '/gantt'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnalyticsRoute: typeof AnalyticsRoute
+  CorridorRoute: typeof CorridorRoute
   DefectsRoute: typeof DefectsRoute
   GanttRoute: typeof GanttRoute
 }
@@ -83,6 +93,13 @@ declare module '@tanstack/react-router' {
       path: '/analytics'
       fullPath: '/analytics'
       preLoaderRoute: typeof AnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/corridor': {
+      id: '/corridor'
+      path: '/corridor'
+      fullPath: '/corridor'
+      preLoaderRoute: typeof CorridorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/defects': {
@@ -105,6 +122,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnalyticsRoute: AnalyticsRoute,
+  CorridorRoute: CorridorRoute,
   DefectsRoute: DefectsRoute,
   GanttRoute: GanttRoute,
 }
