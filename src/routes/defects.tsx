@@ -56,7 +56,7 @@ function Defects() {
         `${d.id} ${d.description} ${d.section}`.toLowerCase().includes(q.toLowerCase())),
   );
 
-  const views: Record<string, Defect[]> = {
+  const views = {
     all: base,
     overdue: base.filter((d) => d.overdue),
     critical: base.filter((d) => d.severity === "Critical"),
