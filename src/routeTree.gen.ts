@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DefectsRouteImport } from './routes/defects'
 import { Route as GanttRouteImport } from './routes/gantt'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DefectsRoute = DefectsRouteImport.update({
+  id: '/defects',
+  path: '/defects',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GanttRoute = GanttRouteImport.update({
@@ -25,27 +31,31 @@ const GanttRoute = GanttRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/defects': typeof DefectsRoute
   '/gantt': typeof GanttRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/defects': typeof DefectsRoute
   '/gantt': typeof GanttRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/defects': typeof DefectsRoute
   '/gantt': typeof GanttRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/gantt'
+  fullPaths: '/' | '/defects' | '/gantt'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/gantt'
-  id: '__root__' | '/' | '/gantt'
+  to: '/' | '/defects' | '/gantt'
+  id: '__root__' | '/' | '/defects' | '/gantt'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DefectsRoute: typeof DefectsRoute
   GanttRoute: typeof GanttRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/defects': {
+      id: '/defects'
+      path: '/defects'
+      fullPath: '/defects'
+      preLoaderRoute: typeof DefectsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gantt': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DefectsRoute: DefectsRoute,
   GanttRoute: GanttRoute,
 }
 export const routeTree = rootRouteImport
