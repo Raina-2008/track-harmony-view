@@ -42,3 +42,8 @@ __pycache__/
 *.pyo
 *.pyd
 .pytest_cache/
+
+backend/venv/
+backend/serviceAccountKey.json
+backend/.env
+backend/__pycache__/
