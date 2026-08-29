@@ -1,0 +1,28 @@
+{
+  "defects": [
+    {
+      "asset_id": "TRACK_ENG_101",
+      "department": "Engineering",
+      "location": "SEC-DELHI-AGRA-KM42",
+      "defect_type": "Rail Micro-Fracture",
+      "vibration_hz": 4.2,
+      "urgency": "HIGH"
+    },
+    {
+      "asset_id": "OHE_TRAC_204",
+      "department": "Traction_OHE",
+      "location": "SEC-DELHI-AGRA-KM58",
+      "defect_type": "Catenary Wire Sag",
+      "vibration_hz": 3.1,
+      "urgency": "MEDIUM"
+    },
+    {
+      "asset_id": "SIG_ST_309",
+      "department": "Signal_Telecom",
+      "location": "SEC-DELHI-AGRA-KM12",
+      "defect_type": "Interlocking Relay Latency",
+      "vibration_hz": 2.8,
+      "urgency": "LOW"
+    }
+  ]
+}
