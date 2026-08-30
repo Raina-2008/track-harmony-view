@@ -31,7 +31,7 @@ This blends TWO things into the final score:
    train_model.py - genuine unsupervised ML, flags readings that don't look
    like "normal" track behavior even if no single field crosses a hard limit.
 
-SETUP (one-time):
+SETUP — LOCAL TESTING (one-time):
 1. Ask P4 (whoever owns the Firebase console) for a "service account key":
    Firebase console -> Project settings -> Service accounts -> Generate new
    private key. Save the downloaded file as serviceAccountKey.json in this
@@ -39,6 +39,12 @@ SETUP (one-time):
 2. pip install -r requirements.txt
 3. python train_model.py        (produces health_model.joblib, run once)
 4. python health_scoring.py
+
+SETUP — RENDER DEPLOYMENT:
+Same convention as backend/firebase_init.py already uses in this repo:
+set an environment variable FIREBASE_CREDENTIALS_JSON on Render, with the
+ENTIRE contents of serviceAccountKey.json pasted in as the value. No local
+file needed on Render — the script checks the env var first automatically.
 
 TESTING WITHOUT P1's SIMULATOR READY YET:
 Open the Firebase console -> Realtime Database, and manually add data at
@@ -49,6 +55,7 @@ You should see this script print a low score and fire an alert + block request.
 import os
 import time
 import uuid
+import json
 from datetime import datetime
 
 import joblib
@@ -112,54 +119,58 @@ SECTION_DEPT = {
 # ---- FIREBASE SETUP ----------------------------------------------------------
 
 def init_firebase():
-    if not os.path.exists(SERVICE_ACCOUNT_PATH):
+    """
+    Matches the convention already used in backend/firebase_init.py by your
+    teammate: on Render, set an env var FIREBASE_CREDENTIALS_JSON containing
+    the ENTIRE contents of serviceAccountKey.json as one string. Locally, just
+    keep using the serviceAccountKey.json file next to this script — no env
+    var needed for that case.
+    """
+    env_creds = os.environ.get("FIREBASE_CREDENTIALS_JSON")
+    if env_creds:
+        try:
+            cred_dict = json.loads(env_creds)
+        except json.JSONDecodeError as e:
+            raise SystemExit(
+                f"FIREBASE_CREDENTIALS_JSON is set but isn't valid JSON: {e}\n"
+                "Paste the ENTIRE contents of serviceAccountKey.json as the value, unmodified."
+            )
+        cred = credentials.Certificate(cred_dict)
+    elif os.path.exists(SERVICE_ACCOUNT_PATH):
+        cred = credentials.Certificate(SERVICE_ACCOUNT_PATH)
+    else:
         raise SystemExit(
-            f"Could not find {SERVICE_ACCOUNT_PATH}\n"
-            "Download it from Firebase console -> Project settings -> Service "
-            "accounts -> Generate new private key, save it as serviceAccountKey.json "
-            "in this same folder, then try again."
+            f"No credentials found. Either:\n"
+            f"  - set env var FIREBASE_CREDENTIALS_JSON (for Render), or\n"
+            f"  - place serviceAccountKey.json at {SERVICE_ACCOUNT_PATH} (for local testing)\n"
+            "Get it from Firebase console -> Project settings -> Service accounts -> "
+            "Generate new private key."
         )
-    cred = credentials.Certificate(SERVICE_ACCOUNT_PATH)
+
     firebase_admin.initialize_app(cred, {"databaseURL": DATABASE_URL})
 
 
 # ---- SCORING -----------------------------------------------------------------
 
-def sanitize_reading(reading: dict) -> tuple[dict, set]:
+def sanitize_reading(reading: dict) -> dict:
     """
     Coerces every expected field to a float, defaulting to 0 for anything
     missing, non-numeric, or None. Sensor data from the field (or a flaky
     simulator) will eventually send something malformed — this makes sure
     that never takes down the whole listener.
-
-    IMPORTANT: 0 is the BEST possible value for every field here (lowest
-    vibration/temp/axleLoad = healthiest). So a missing or garbage field
-    defaulting to 0 would silently score as "perfectly healthy" instead of
-    "unknown" — the opposite of what you want for a dead/malfunctioning
-    sensor. To guard against that, this also returns the set of field
-    names that were missing/invalid, so the caller can treat a reading
-    with ANY invalid field as at least "Warning", never "Normal", even if
-    the (fabricated) numbers alone would compute to a clean score.
     """
     clean = {}
-    invalid_fields = set()
     for field in ("vibration", "temperature", "axleLoad"):
-        raw = reading.get(field, None)
-        if raw is None:
-            invalid_fields.add(field)
-            value = 0.0
-        else:
-            try:
-                value = float(raw)
-                if value < 0 or value != value:  # negative or NaN
-                    invalid_fields.add(field)
-                    value = 0.0
-            except (TypeError, ValueError):
-                print(f"  [warn] bad value for '{field}': {raw!r} -> using 0")
-                invalid_fields.add(field)
+        raw = reading.get(field, 0)
+        try:
+            value = float(raw)
+            if value < 0 or value != value:  # negative or NaN
                 value = 0.0
+        except (TypeError, ValueError):
+            print(f"  [warn] bad value for '{field}': {raw!r} -> using 0")
+            value = 0.0
         clean[field] = value
-    return clean, invalid_fields
+    return clean
 
 
 def compute_health_score(reading: dict) -> int:
@@ -230,21 +241,14 @@ CONFIRM_STREAK = 2  # how many readings in a row before a severity change counts
 
 def score_and_publish(section_id: str, reading: dict):
     """Scores one section's reading and writes score/alert/request as needed."""
-    reading, invalid_fields = sanitize_reading(reading)
+    reading = sanitize_reading(reading)
 
     rule_score = compute_health_score(reading)
     ml_score = ml_anomaly_score(reading)
     score = round((1 - ML_BLEND_WEIGHT) * rule_score + ML_BLEND_WEIGHT * ml_score)
     severity = severity_for(score)
 
-    if invalid_fields and severity == "Normal":
-        # Missing/garbage fields default to 0, the BEST possible value for
-        # every field here -- so a dead sensor could otherwise compute a
-        # clean "Normal" score. Never let bad/missing data present as fine.
-        severity = "Warning"
-
-    flag = f" [DATA ISSUE: {', '.join(sorted(invalid_fields))}]" if invalid_fields else ""
-    print(f"[{section_id}] rule={rule_score} ml={ml_score} final={score} severity={severity}{flag}")
+    print(f"[{section_id}] rule={rule_score} ml={ml_score} final={score} severity={severity}")
 
     # The live score updates on every reading, unfiltered — the dashboard
     # should always show the current number, even before an alert confirms.
